@@ -1,0 +1,6 @@
+[8] Log opened at 2022-01-22 16:10:55.636959
+[8] [Step Debug] INFO: Connecting to configured address/port: 172.17.0.1:9003.
+[8] [Step Debug] WARN: Creating socket for '172.17.0.1:9003', poll success, but error: Operation now in progress (29).
+[8] [Step Debug] ERR: Could not connect to debugging client. Tried: 172.17.0.1:9003 (through xdebug.client_host/xdebug.client_port) :-(
+[8] Log closed at 2022-01-22 16:10:55.638573
+

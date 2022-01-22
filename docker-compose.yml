@@ -1,0 +1,120 @@
+version: '3.4'
+services:
+  nginx:
+    build:
+      context: ./environment
+      dockerfile: nginx.Dockerfile
+    depends_on:
+      - php
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - ./projects:/projects
+      - ./environment/logs/nginx:/var/log/nginx
+    networks:
+      - php-projects
+  php:
+    build:
+      context: ./environment
+      dockerfile: php8.0.Dockerfile
+      args:
+        DOCKER_LOGIN: ${GIT_USER}
+        DOCKER_PASSWORD: ${GIT_PASSWORD}
+    volumes:
+      - ./projects:/projects
+      - ./environment/logs/php-fpm:/var/log/php-fpm
+    environment:
+      PHP_XDEBUG_ENABLED: 1
+    networks:
+      - php-projects
+  php74:
+    build:
+      context: ./environment
+      dockerfile: php7.4.Dockerfile
+      args:
+        DOCKER_LOGIN: ${GIT_USER}
+        DOCKER_PASSWORD: ${GIT_PASSWORD}
+    volumes:
+      - ./projects:/projects
+    environment:
+      PHP_XDEBUG_ENABLED: 1
+    networks:
+      - php-projects
+  postgres:
+    image: postgres
+    restart: always
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./environment/data/postgres:/data/pgdata
+    environment:
+      POSTGRES_PASSWORD: developer
+      PGDATA: /data/pgdata
+    networks:
+      - php-projects
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./environment/configs/prometheus/:/etc/prometheus/
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention=200h' #Чистим TSDB каждый 200ч
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    expose:
+      - 9090
+    ports:
+      - "9090:9090"
+      - "64000:64000"
+    networks:
+      - php-projects
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8081:8080
+    networks:
+      - php-projects
+  ubuntu:
+    build:
+      context: ./environment
+      dockerfile: ubuntu.Dockerfile
+    networks:
+      - php-projects
+    tty: true
+  redis:
+    image: redis:6.2
+    ports:
+      - "6379:6379"
+    networks:
+      - php-projects
+  node:
+    image: node:16
+    volumes:
+      - ./projects:/projects
+    networks:
+      - php-projects
+    tty: true
+  akhq:
+    image: tchiotludo/akhq
+    environment:
+      AKHQ_CONFIGURATION: |
+        akhq:
+          connections:
+            docker-kafka-server:
+              properties:
+                bootstrap.servers: ${KAFKA_SERVERS}
+
+    ports:
+      - 8082:8080
+networks:
+  php-projects:
+    driver: bridge
+volumes:
+  prometheus_data: { }
