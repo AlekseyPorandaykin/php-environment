@@ -15,5 +15,6 @@ ps: docker-compose.yml
 down: docker-compose.yml
 	docker-compose down
 
-init: docker-compose.yml
-	docker-compose exec php composer install
+clear-redis: docker-compose.yml
+	docker-compose exec redis redis-cli FLUSHALL
+

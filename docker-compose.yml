@@ -113,6 +113,12 @@ services:
 
     ports:
       - 8082:8080
+  kowl:
+    image: quay.io/cloudhut/kowl:master
+    environment:
+      KAFKA_BROKERS: ${KAFKA_SERVERS}
+    ports:
+      - 8083:8080
 networks:
   php-projects:
     driver: bridge
