@@ -15,6 +15,9 @@ ps: docker-compose.yml
 down: docker-compose.yml
 	docker-compose down
 
-clear-redis: docker-compose.yml
-	docker-compose exec redis redis-cli FLUSHALL
+init: docker-compose.yml
+	docker-compose exec php composer install
 
+#Почистить кеш
+clear-cache: docker-compose.yml
+	docker-compose exec redis redis-cli FLUSHALL

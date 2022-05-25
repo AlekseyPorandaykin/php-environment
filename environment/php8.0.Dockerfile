@@ -13,9 +13,10 @@ RUN apt-get update -y \
      php8.0-mysql php8.0-mysqli php8.0-pdo php8.0-pgsql \
      php8.0-ctype php8.0-zip php8.0-intl php8.0-xml php8.0-ldap \
      php-gd php8.0-xml php8.0-mbstring php8.0-curl php8.0-amqp php-xml php-pear php8.0-apcu php-mbstring \
-    && pecl install xdebug  \
+    && pecl install xdebug \
     && pecl install ds \
-    && apt-get install -y supervisor 
+    && apt-get install -y supervisor \
+    && apt-get install -y php8.0-redis
 RUN apt-get update -y \
     && apt install -y php-pear 
 RUN apt-get install -y librdkafka-dev \
@@ -38,6 +39,10 @@ RUN echo -e " \nextension=rdkafka.so" >> /etc/php/8.0/cli/php.ini \
 
 RUN echo -e "\nextension=apcu.so" >> /etc/php/8.0/cli/php.ini \
     && echo -e " \nextension=apcu.so" >> /etc/php/8.0/fpm/php.ini
+
+RUN echo -e " \nextension=redis.so" >> /etc/php/8.0/cli/php.ini \
+    && echo -e " \nextension=redis.so" >> /etc/php/8.0/fpm/php.ini
+
 
 RUN update-alternatives --set php /usr/bin/php8.0
 
